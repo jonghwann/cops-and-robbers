@@ -1,23 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text } from 'react-native';
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome to Nanum</Text>
-    </View>
+    <Text className="font-bold bg-red-500 p-2 rounded-md text-red-300">
+      Hello World !! NativeWind
+    </Text>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-});
-
