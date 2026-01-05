@@ -7,5 +7,5 @@
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "cSpell.words": ["SUPABASE"]
+  "cSpell.words": ["Pressable", "SUPABASE"]
 }
