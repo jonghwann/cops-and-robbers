@@ -1,11 +1,6 @@
-import { Text } from 'react-native';
-import Screen from '@/components/layout/screen';
+import { Redirect } from 'expo-router';
 import './global.css';
 
 export default function Index() {
-  return (
-    <Screen>
-      <Text>Hello World</Text>
-    </Screen>
-  );
+  return <Redirect href="/auth" />;
 }
