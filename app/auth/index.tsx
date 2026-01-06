@@ -10,14 +10,13 @@ import useVerifyOtp from '@/hooks/mutations/use-verify-otp';
 import { toE164 } from '@/utils/phone';
 import { toast } from '@/utils/toast';
 
-type Field = 'phone' | 'code';
+const initialValues = {
+  phone: '',
+  code: '',
+};
 
 export default function Index() {
-  const [values, setValues] = useState<Record<Field, string>>({
-    phone: '',
-    code: '',
-  });
-
+  const [values, setValues] = useState(initialValues);
   const [isOtpRequested, setIsOtpRequested] = useState(false);
 
   const { mutate: signInWithOtp, isPending: isSignInWithOtpPending } = useSignInWithOtp({
@@ -39,7 +38,7 @@ export default function Index() {
     },
   });
 
-  const handleChange = (field: Field, value: string) => {
+  const handleChangeText = (field: keyof typeof initialValues, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -59,19 +58,19 @@ export default function Index() {
         <View className="gap-4">
           <View className="flex-row gap-4">
             <Input
-              className="flex-1"
               value={values.phone}
               placeholder="01012345678"
               maxLength={11}
               keyboardType="number-pad"
               autoFocus
-              onChangeText={(text) => handleChange('phone', text)}
+              onChangeText={(text) => handleChangeText('phone', text)}
+              className="flex-1"
             />
             <Button
               title={isOtpRequested ? '재전송' : '번호 요청'}
               isLoading={isSignInWithOtpPending}
-              className="w-32"
               onPress={handleSignInWithOtpPress}
+              className="w-[30%]"
             />
           </View>
 
@@ -80,7 +79,7 @@ export default function Index() {
             placeholder="인증번호를 입력하세요."
             maxLength={6}
             keyboardType="number-pad"
-            onChangeText={(text) => handleChange('code', text)}
+            onChangeText={(text) => handleChangeText('code', text)}
           />
         </View>
 

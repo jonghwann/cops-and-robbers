@@ -15,7 +15,7 @@ export default function Button({ title, disabled, isLoading, className, ...props
     <Pressable
       disabled={isDisabled}
       className={cn(
-        'h-14 items-center justify-center rounded-lg bg-primary p-2',
+        'h-14 items-center justify-center rounded-lg bg-primary px-4',
         isDisabled && 'opacity-50',
         className,
       )}
