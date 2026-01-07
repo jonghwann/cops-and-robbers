@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
-import Title from '@/components/ui/title';
 import useSignInWithOtp from '@/hooks/mutations/use-sign-in-with-otp';
 import useVerifyOtp from '@/hooks/mutations/use-verify-otp';
 import { toE164 } from '@/utils/phone';
@@ -31,7 +30,7 @@ export default function Index() {
 
   const { mutate: verifyOtp, isPending: isVerifyOtpPending } = useVerifyOtp({
     onSuccess: () => {
-      router.replace('/auth/sign-up');
+      router.replace('/sign-up');
     },
     onError: () => {
       toast.error('인증번호를 다시 확인해주세요');
@@ -43,7 +42,8 @@ export default function Index() {
   };
 
   const handleSignInWithOtpPress = async () => {
-    signInWithOtp(toE164(values.phone));
+    router.replace('/sign-up');
+    // signInWithOtp(toE164(values.phone));
   };
 
   const handleVerifyOtpPress = async () => {
@@ -52,8 +52,6 @@ export default function Index() {
 
   return (
     <Screen>
-      <Title>번호 인증</Title>
-
       <View className="gap-6">
         <View className="gap-4">
           <View className="flex-row gap-4">

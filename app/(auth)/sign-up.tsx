@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 import Screen from '@/components/layout/screen';
@@ -5,7 +6,6 @@ import Button from '@/components/ui/button';
 import DateTimePickerInput from '@/components/ui/date-time-picker-input';
 import Input from '@/components/ui/input';
 import Segment from '@/components/ui/segment';
-import Title from '@/components/ui/title';
 
 const initialValues = {
   name: '',
@@ -30,18 +30,12 @@ export default function SignUp() {
     setValues((prev) => ({ ...prev, gender: value }));
   };
 
-  const handleAddressChange = (text: string) => {
-    setValues((prev) => ({ ...prev, address: text }));
-  };
-
   const handleBirthDateChange = (date: Date) => {
     setValues((prev) => ({ ...prev, birthDate: date }));
   };
 
   return (
     <Screen>
-      <Title>회원가입</Title>
-
       <View className="gap-6">
         <View className="flex-row gap-4">
           <Input placeholder="이름" autoFocus className="flex-1" onChangeText={handleChangeText} />
@@ -59,7 +53,11 @@ export default function SignUp() {
             onConfirm={handleBirthDateChange}
             className="w-[40%]"
           />
-          <Input placeholder="주소" className="flex-1" onChangeText={handleAddressChange} />
+          <Input
+            placeholder="주소"
+            onPressIn={() => router.push('/address-search')}
+            className="flex-1"
+          />
         </View>
 
         <Button title="가입하기" />
