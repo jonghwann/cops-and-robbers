@@ -1,4 +1,11 @@
-import { ActivityIndicator, Pressable, type PressableProps, Text } from 'react-native';
+import {
+  ActivityIndicator,
+  type ActivityIndicatorProps,
+  Pressable,
+  type PressableProps,
+  Text,
+  type TextProps,
+} from 'react-native';
 import { cn } from '@/lib/cn';
 
 interface ButtonProps extends PressableProps {
@@ -6,9 +13,21 @@ interface ButtonProps extends PressableProps {
   disabled?: boolean;
   isLoading?: boolean;
   className?: string;
+  textProps?: Omit<TextProps, 'className'>;
+  textClassName?: string;
+  indicatorProps?: ActivityIndicatorProps;
 }
 
-export default function Button({ title, disabled, isLoading, className, ...props }: ButtonProps) {
+export default function Button({
+  title,
+  disabled,
+  isLoading,
+  className,
+  textProps,
+  textClassName,
+  indicatorProps,
+  ...props
+}: ButtonProps) {
   const isDisabled = disabled || isLoading;
 
   return (
@@ -22,9 +41,11 @@ export default function Button({ title, disabled, isLoading, className, ...props
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator color="white" />
+        <ActivityIndicator color="white" {...indicatorProps} />
       ) : (
-        <Text className="font-semibold text-2xl text-white">{title}</Text>
+        <Text className={cn('font-semibold text-2xl text-white', textClassName)} {...textProps}>
+          {title}
+        </Text>
       )}
     </Pressable>
   );

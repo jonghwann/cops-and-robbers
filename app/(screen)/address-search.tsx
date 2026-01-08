@@ -19,9 +19,9 @@ export default function AddressSearch() {
         value={query}
         placeholder="동·읍·면을 입력해주세요."
         autoFocus
-        icon={{ size: 18 }}
+        icon={{ name: 'search', size: 18, color: 'black' }}
         onChangeText={setQuery}
-        className="h-12 rounded-full bg-[#f3f4f6]"
+        className="h-12 rounded-full bg-gray-100"
         inputClassName="text-lg leading-6"
       />
       <FlatList

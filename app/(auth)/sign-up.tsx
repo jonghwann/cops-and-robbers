@@ -9,15 +9,22 @@ import Input from '@/components/ui/input';
 import Segment from '@/components/ui/segment';
 import useSignUp from '@/hooks/mutations/use-sign-up';
 import { useAddress } from '@/store/address';
+import type { Gender } from '@/types/user';
 import { toast } from '@/utils/toast';
 
-const initialValues = {
+interface InitialValues {
+  name: string;
+  gender: Gender;
+  birthDate: Date;
+}
+
+const initialValues: InitialValues = {
   name: '',
   gender: 'male',
   birthDate: new Date(),
 };
 
-const segmentOptions = [
+const segmentOptions: Array<{ label: string; value: Gender }> = [
   { label: '남', value: 'male' },
   { label: '여', value: 'female' },
 ];
@@ -61,6 +68,7 @@ export default function SignUp() {
             options={segmentOptions}
             selectedValue={values.gender}
             onChange={(value) => handleChange('gender', value)}
+            fontStyle={{ fontSize: 18 }}
             className="w-[35%]"
           />
         </View>

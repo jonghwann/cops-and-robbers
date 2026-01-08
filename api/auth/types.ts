@@ -1,3 +1,5 @@
+import type { Gender } from '@/types/user';
+
 export interface VerifyOtpRequest {
   phone: string;
   code: string;
@@ -5,7 +7,7 @@ export interface VerifyOtpRequest {
 
 export interface SignUpRequest {
   name: string;
-  gender: string;
+  gender: Gender;
   birthDate: Date;
   region1: string;
   region2: string;

@@ -1,9 +1,15 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePickerModal, {
+  type ReactNativeModalDateTimePickerProps,
+} from 'react-native-modal-datetime-picker';
 import Input from './input';
 
-interface DateTimePickerInputProps {
+interface DateTimePickerInputProps
+  extends Omit<
+    ReactNativeModalDateTimePickerProps,
+    'date' | 'isVisible' | 'onConfirm' | 'onCancel'
+  > {
   date: Date;
   onConfirm?: (date: Date) => void;
   className?: string;
@@ -13,6 +19,7 @@ export default function DateTimePickerInput({
   date,
   onConfirm,
   className,
+  ...props
 }: DateTimePickerInputProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -50,6 +57,7 @@ export default function DateTimePickerInput({
         cancelTextIOS="취소"
         textColor="#000000"
         pickerStyleIOS={{ alignItems: 'center' }}
+        {...props}
       />
     </View>
   );

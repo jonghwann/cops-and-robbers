@@ -4,28 +4,28 @@ import SegmentedControl, {
 import { View } from 'react-native';
 import { cn } from '@/lib/cn';
 
-type SegmentOption = {
+type SegmentOption<T> = {
   label: string;
-  value: string;
+  value: T;
 };
 
-interface SegmentProps
+interface SegmentProps<T>
   extends Omit<SegmentedControlProps, 'values' | 'selectedIndex' | 'onChange'> {
-  options: SegmentOption[];
-  selectedValue: string;
-  onChange: (value: string) => void;
+  options: SegmentOption<T>[];
+  selectedValue: T;
+  onChange: (value: T) => void;
   className?: string;
 }
 
-export default function Segment({
+export default function Segment<T>({
   options,
   selectedValue,
   onChange,
   className,
   ...props
-}: SegmentProps) {
-  const selectedIndex = options.findIndex((option) => option.value === selectedValue);
+}: SegmentProps<T>) {
   const labels = options.map((option) => option.label);
+  const selectedIndex = options.findIndex((option) => option.value === selectedValue);
 
   return (
     <View className={cn('h-14', className)}>
@@ -37,7 +37,6 @@ export default function Segment({
           onChange(options[index].value);
         }}
         style={{ height: '100%' }}
-        fontStyle={{ fontSize: 18 }}
         {...props}
       />
     </View>
