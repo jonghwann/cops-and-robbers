@@ -9,7 +9,8 @@ import Input from '@/components/ui/input';
 import Segment from '@/components/ui/segment';
 import useSignUp from '@/hooks/mutations/use-sign-up';
 import { useAddress } from '@/store/address';
-import type { Gender } from '@/types/user';
+import type { Gender } from '@/types/profile';
+import { formatISODate } from '@/utils/date';
 import { toast } from '@/utils/toast';
 
 interface InitialValues {
@@ -32,7 +33,7 @@ const segmentOptions: Array<{ label: string; value: Gender }> = [
 export default function SignUp() {
   const [values, setValues] = useState(initialValues);
 
-  const { region1, region2, region3, hCode } = useAddress();
+  const address = useAddress();
 
   const { mutate: signUp, isPending: isSignUpPending } = useSignUp({
     onSuccess: () => {
@@ -51,7 +52,9 @@ export default function SignUp() {
   };
 
   const handleSignUpPress = () => {
-    signUp({ ...values, region1, region2, region3, hCode });
+    const { birthDate, ...restValues } = values;
+    const { hCode, ...restAddress } = address;
+    signUp({ birth_date: formatISODate(birthDate), ...restValues, h_code: hCode, ...restAddress });
   };
 
   return (
@@ -79,7 +82,7 @@ export default function SignUp() {
             onConfirm={(date) => handleChange('birthDate', date)}
             className="w-[40%]"
           />
-          <AddressInput value={region3} className="flex-1" />
+          <AddressInput value={address.region3} className="flex-1" />
         </View>
 
         <Button title="가입하기" isLoading={isSignUpPending} onPress={handleSignUpPress} />

@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { formatISODate } from '@/utils/date';
-import type { SignUpRequest, VerifyOtpRequest } from './types';
+import type { SignUpRequest, UpdateProfileRequest, VerifyOtpRequest } from './types';
 
 export async function signInWithOtp(phone: string) {
   const { data, error } = await supabase.auth.signInWithOtp({
@@ -22,7 +21,7 @@ export async function verifyOtp({ phone, code }: VerifyOtpRequest) {
   return data;
 }
 
-export async function me() {
+export async function getProfile() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -36,7 +35,10 @@ export async function me() {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  if (!data) return null;
+
+  const { birth_date, h_code, ...rest } = data;
+  return { ...rest, birthDate: birth_date, hCode: h_code };
 }
 
 export async function signUp(params: SignUpRequest) {
@@ -46,23 +48,32 @@ export async function signUp(params: SignUpRequest) {
 
   if (!user) throw new Error();
 
-  const { name, gender, birthDate, region1, region2, region3, hCode } = params;
-
-  if (!name || !gender || !birthDate || !region1 || !region2 || !region3 || !hCode) {
-    throw new Error();
-  }
+  if (!Object.values(params).every(Boolean)) throw new Error();
 
   const { data, error } = await supabase.from('profiles').upsert({
     id: user.id,
-    name,
-    gender,
-    birth_date: formatISODate(birthDate),
-    region1,
-    region2,
-    region3,
-    h_code: hCode,
+    ...params,
     updated_at: new Date().toISOString(),
   });
+
+  if (error) throw new Error();
+
+  return data;
+}
+
+export async function updateProfile(params: UpdateProfileRequest) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      ...params,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', user.id);
 
   if (error) throw error;
   return data;

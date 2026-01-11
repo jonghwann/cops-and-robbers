@@ -1,20 +1,20 @@
 import { Stack } from 'expo-router';
 import { ActivityIndicator } from 'react-native';
 import { BACK_SCREEN_OPTIONS, BACK_SCREENS } from '@/constants/screens';
-import useMe from '@/hooks/queries/use-me';
+import useProfile from '@/hooks/queries/use-profile';
 
 export default function RootNavigator() {
-  const { data: me, isLoading: isMeLoading, isError: isMeError } = useMe();
+  const { data: profile, isLoading: isProfileLoading, isError: isProfileError } = useProfile();
 
-  if (isMeLoading || isMeError) return <ActivityIndicator />;
+  if (isProfileLoading || isProfileError) return <ActivityIndicator />;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={me === null}>
+      <Stack.Protected guard={profile === null}>
         <Stack.Screen name="(auth)" />
       </Stack.Protected>
 
-      <Stack.Protected guard={me !== null}>
+      <Stack.Protected guard={profile !== null}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
 

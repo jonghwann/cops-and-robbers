@@ -14,7 +14,7 @@ export default function SessionProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
-        queryClient.setQueryData(queryKeys.me.all, null);
+        queryClient.setQueryData(queryKeys.profile.all, null);
         router.replace('/(auth)');
       }
     });

@@ -1,16 +1,16 @@
-import type { Gender } from '@/types/user';
+import type { Profile } from '@/types/profile';
 
 export interface VerifyOtpRequest {
   phone: string;
   code: string;
 }
 
-export interface SignUpRequest {
-  name: string;
-  gender: Gender;
-  birthDate: Date;
-  region1: string;
-  region2: string;
-  region3: string;
-  hCode: string;
+export interface SignUpRequest extends Omit<Profile, 'birthDate' | 'hCode'> {
+  birth_date: string;
+  h_code: string;
+}
+
+export interface UpdateProfileRequest extends Omit<Partial<Profile>, 'birthDate' | 'hCode'> {
+  birth_date?: string;
+  h_code?: string;
 }

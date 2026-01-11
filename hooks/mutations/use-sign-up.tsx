@@ -9,7 +9,7 @@ export default function useSignUp(callbacks?: UseMutationCallbacks) {
   return useMutation({
     mutationFn: signUp,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.me.all });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
       callbacks?.onSuccess?.();
     },
     onError: (error) => {
