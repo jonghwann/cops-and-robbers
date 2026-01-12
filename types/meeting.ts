@@ -6,4 +6,5 @@ export interface Meeting {
   region2: string;
   memberCount: number;
   createdAt: string;
+  isFavorite: boolean;
 }

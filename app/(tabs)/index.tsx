@@ -24,7 +24,7 @@ export default function Index() {
 
       <FlatList
         data={meetings}
-        renderItem={({ item }) => <MeetingListItem {...item} />}
+        renderItem={({ item }) => <MeetingListItem id={item} />}
         contentContainerClassName="gap-4"
       />
     </Screen>

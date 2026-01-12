@@ -1,3 +1,4 @@
+import { requireUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/types/profile';
 import type { SignUpRequest, UpdateProfileRequest, VerifyOtpRequest } from './types';
@@ -41,11 +42,7 @@ export async function getProfile(): Promise<Profile | null> {
 }
 
 export async function signUp(params: SignUpRequest): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error();
+  const user = await requireUser();
 
   if (!Object.values(params).every(Boolean)) throw new Error();
 
@@ -59,10 +56,7 @@ export async function signUp(params: SignUpRequest): Promise<void> {
 }
 
 export async function updateProfile(params: UpdateProfileRequest): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error();
+  const user = await requireUser();
 
   const { error } = await supabase
     .from('profiles')
