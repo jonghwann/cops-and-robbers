@@ -1,10 +1,13 @@
 export const queryKeys = {
   profile: {
     all: ['profile'],
-    // list: ['profile', 'list'],
-    // byId: (id: string) => ['profile', 'byId', id],
   },
   search: {
     address: (query: string) => ['search', 'address', query],
+  },
+  meetings: {
+    all: ['meetings'],
+    list: ['meetings', 'list'],
+    byId: (meetingId: string) => ['meetings', 'byId', meetingId],
   },
 };
