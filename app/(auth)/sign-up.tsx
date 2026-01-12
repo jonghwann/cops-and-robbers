@@ -67,6 +67,7 @@ export default function SignUp() {
             className="flex-1"
             onChangeText={(text) => handleChange('name', text)}
           />
+
           <Segment
             options={segmentOptions}
             selectedValue={values.gender}
@@ -82,6 +83,7 @@ export default function SignUp() {
             onConfirm={(date) => handleChange('birthDate', date)}
             className="w-[40%]"
           />
+
           <AddressInput value={address.region3} className="flex-1" />
         </View>
 

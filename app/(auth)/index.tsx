@@ -63,6 +63,7 @@ export default function Index() {
               onChangeText={(text) => handleChangeText('phone', text)}
               className="flex-1"
             />
+
             <Button
               title={isOtpRequested ? '재전송' : '번호 요청'}
               isLoading={isSignInWithOtpPending}

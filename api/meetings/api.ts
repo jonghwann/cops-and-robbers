@@ -29,12 +29,13 @@ async function getFavoriteIdSet(userId: string, meetingIds: string[]) {
   return new Set((data ?? []).map((row) => row.meeting_id));
 }
 
-export async function getMeetings(): Promise<Meeting[]> {
+export async function getMeetings(region2: string): Promise<Meeting[]> {
   const user = await requireUser();
 
   const { data, error } = await supabase
     .from('meetings')
     .select('*')
+    .eq('region2', region2)
     .order('created_at', { ascending: false })
     .limit(20);
 

@@ -8,7 +8,7 @@ import useProfile from '@/hooks/queries/use-profile';
 
 export default function Index() {
   const { data: profile } = useProfile();
-  const { data: meetings } = useMeetings();
+  const { data: meetings } = useMeetings(profile?.region2 ?? '');
 
   return (
     <Screen>

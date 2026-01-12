@@ -7,7 +7,7 @@ export const queryKeys = {
   },
   meetings: {
     all: ['meetings'],
-    list: ['meetings', 'list'],
+    list: (region2: string) => ['meetings', 'list', region2],
     byId: (meetingId: string) => ['meetings', 'byId', meetingId],
   },
 };
