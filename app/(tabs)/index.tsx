@@ -6,10 +6,6 @@ import Title from '@/components/ui/title';
 import useMeetings from '@/hooks/queries/use-meetings';
 import useProfile from '@/hooks/queries/use-profile';
 
-// const handleSignOutPress = async () => {
-//   await supabase.auth.signOut();
-// };
-
 export default function Index() {
   const { data: profile } = useProfile();
   const { data: meetings } = useMeetings();

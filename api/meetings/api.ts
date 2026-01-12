@@ -3,10 +3,36 @@ import { supabase } from '@/lib/supabase';
 import type { Meeting } from '@/types/meeting';
 import type { SetMeetingFavoriteRequest } from './type';
 
+function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    thumbnailUrl: row.thumbnail_url,
+    region2: row.region2,
+    memberCount: row.member_count,
+    createdAt: row.created_at,
+  };
+}
+
+async function getFavoriteIdSet(userId: string, meetingIds: string[]) {
+  if (meetingIds.length === 0) return new Set<string>();
+
+  const { data, error } = await supabase
+    .from('meeting_favorites')
+    .select('meeting_id')
+    .eq('user_id', userId)
+    .in('meeting_id', meetingIds);
+
+  if (error) throw error;
+
+  return new Set((data ?? []).map((row) => row.meeting_id));
+}
+
 export async function getMeetings(): Promise<Meeting[]> {
   const user = await requireUser();
 
-  const { data: rawMeetings, error } = await supabase
+  const { data, error } = await supabase
     .from('meetings')
     .select('*')
     .order('created_at', { ascending: false })
@@ -14,40 +40,25 @@ export async function getMeetings(): Promise<Meeting[]> {
 
   if (error) throw error;
 
-  const meetings = (rawMeetings ?? []).map((meeting) => ({
-    id: meeting.id,
-    title: meeting.title,
-    description: meeting.description,
-    thumbnailUrl: meeting.thumbnail_url,
-    region2: meeting.region2,
-    memberCount: meeting.member_count,
-    createdAt: meeting.created_at,
-  }));
+  const meetings = (data ?? []).map(toMeeting);
+  const favoriteIds = await getFavoriteIdSet(
+    user.id,
+    meetings.map((meeting) => meeting.id),
+  );
 
-  if (meetings.length === 0) return [];
-
-  const meetingIds = meetings.map((meeting) => meeting.id);
-
-  const { data: rawFavorites, error: favoriteError } = await supabase
-    .from('meeting_favorites')
-    .select('meeting_id')
-    .eq('user_id', user.id)
-    .in('meeting_id', meetingIds);
-
-  if (favoriteError) throw favoriteError;
-
-  const favoriteMeetingIds = new Set((rawFavorites ?? []).map((favorite) => favorite.meeting_id));
-
-  return meetings.map((meeting) => ({
-    ...meeting,
-    isFavorite: favoriteMeetingIds.has(meeting.id),
-  }));
+  return meetings.map((meeting) => ({ ...meeting, isFavorite: favoriteIds.has(meeting.id) }));
 }
 
 export async function getMeetingById(id: string): Promise<Meeting> {
+  const user = await requireUser();
+
   const { data, error } = await supabase.from('meetings').select('*').eq('id', id).single();
   if (error) throw error;
-  return data;
+
+  const meeting = toMeeting(data);
+  const favoriteIds = await getFavoriteIdSet(user.id, [id]);
+
+  return { ...meeting, isFavorite: favoriteIds.has(id) };
 }
 
 export async function setMeetingFavorite(params: SetMeetingFavoriteRequest): Promise<void> {
