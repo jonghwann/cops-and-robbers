@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { FlatList } from 'react-native';
+import { ActivityIndicator, FlatList, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import MeetingListItem from '@/components/meetings/meetings-list-item';
 import Title from '@/components/ui/title';
@@ -8,7 +8,14 @@ import useProfile from '@/hooks/queries/use-profile';
 
 export default function Index() {
   const { data: profile } = useProfile();
-  const { data: meetings } = useMeetings(profile?.region2 ?? '');
+  const {
+    data: meetings,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMeetings(profile?.region2 ?? '');
+
+  const meetingIds = meetings?.pages.flatMap((page) => page.ids) ?? [];
 
   return (
     <Screen>
@@ -19,9 +26,21 @@ export default function Index() {
       />
 
       <FlatList
-        data={meetings}
+        data={meetingIds}
+        keyExtractor={(id) => id}
         renderItem={({ item }) => <MeetingListItem id={item} />}
         contentContainerClassName="gap-4"
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.6}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={{ paddingVertical: 16 }}>
+              <ActivityIndicator />
+            </View>
+          ) : null
+        }
       />
     </Screen>
   );

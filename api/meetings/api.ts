@@ -1,7 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import type { Meeting } from '@/types/meeting';
-import type { SetMeetingFavoriteRequest } from './type';
+import type { GetMeetingsRequest, MeetingsCursor, SetMeetingFavoriteRequest } from './type';
 
 function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
   return {
@@ -29,25 +29,47 @@ async function getFavoriteIdSet(userId: string, meetingIds: string[]) {
   return new Set((data ?? []).map((row) => row.meeting_id));
 }
 
-export async function getMeetings(region2: string): Promise<Meeting[]> {
+export async function getMeetings(
+  params: GetMeetingsRequest,
+): Promise<{ meetings: Meeting[]; nextCursor: MeetingsCursor | null; hasMore: boolean }> {
   const user = await requireUser();
+  const limit = params.limit ?? 20;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('meetings')
     .select('*')
-    .eq('region2', region2)
+    .eq('region2', params.region2)
     .order('created_at', { ascending: false })
-    .limit(20);
+    .order('id', { ascending: false })
+    .limit(limit + 1);
 
+  if (params.cursor) {
+    const { createdAt, id } = params.cursor;
+    query = query.or(`created_at.lt.${createdAt},and(created_at.eq.${createdAt},id.lt.${id})`);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
 
-  const meetings = (data ?? []).map(toMeeting);
+  const rows = data ?? [];
+  const hasMore = rows.length > limit;
+  const pageRows = rows.slice(0, limit);
+
+  const meetingsBase = pageRows.map(toMeeting);
   const favoriteIds = await getFavoriteIdSet(
     user.id,
-    meetings.map((meeting) => meeting.id),
+    meetingsBase.map((m) => m.id),
   );
 
-  return meetings.map((meeting) => ({ ...meeting, isFavorite: favoriteIds.has(meeting.id) }));
+  const meetings = meetingsBase.map((meeting) => ({
+    ...meeting,
+    isFavorite: favoriteIds.has(meeting.id),
+  }));
+
+  const lastRow = pageRows[pageRows.length - 1];
+  const nextCursor = lastRow != null ? { createdAt: lastRow.created_at, id: lastRow.id } : null;
+
+  return { meetings, nextCursor, hasMore };
 }
 
 export async function getMeetingById(id: string): Promise<Meeting> {
