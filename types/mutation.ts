@@ -1,4 +1,4 @@
-export interface UseMutationCallbacks {
-  onSuccess?: () => void;
-  onError?: (error: Error) => void;
+export interface UseMutationCallbacks<TData = unknown, TError = Error> {
+  onSuccess?: (data: TData) => void;
+  onError?: (error: TError) => void;
 }

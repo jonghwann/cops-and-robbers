@@ -10,7 +10,7 @@ interface InputProps extends TextInputProps {
 
 export default function Input({ icon, className, inputClassName, ...props }: InputProps) {
   return (
-    <View className={cn('h-14 flex-row items-center rounded-lg bg-gray-200 px-4', className)}>
+    <View className={cn('h-14 flex-row items-center rounded-lg bg-gray-100 px-4', className)}>
       {icon && <Ionicons {...icon} />}
 
       <TextInput

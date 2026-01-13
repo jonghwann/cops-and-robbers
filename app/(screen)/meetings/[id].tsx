@@ -7,7 +7,7 @@ import { BACK_SCREEN_OPTIONS } from '@/constants/screens';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
 
-export default function MeetingDetail() {
+export default function Detail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: meeting } = useMeetingById(id, 'detail');
@@ -20,7 +20,7 @@ export default function MeetingDetail() {
   return (
     <Screen hasHeader className="relative">
       <Stack.Screen options={{ ...BACK_SCREEN_OPTIONS, title }} />
-      <Image source={{ uri: thumbnailUrl }} className="aspect-video rounded-2xl" />
+      <Image source={{ uri: thumbnailUrl }} className="aspect-[20/9] rounded-lg" />
 
       <View className="absolute bottom-10 flex-row">
         <Pressable

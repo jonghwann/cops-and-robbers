@@ -1,7 +1,14 @@
+import { decode } from 'base64-arraybuffer';
+import * as FileSystem from 'expo-file-system/legacy';
 import { requireUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import type { Meeting } from '@/types/meeting';
-import type { GetMeetingsRequest, MeetingsCursor, SetMeetingFavoriteRequest } from './type';
+import type {
+  CreateMeetingRequest,
+  GetMeetingsRequest,
+  MeetingsCursor,
+  SetMeetingFavoriteRequest,
+} from './type';
 
 function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
   return {
@@ -104,4 +111,53 @@ export async function setMeetingFavorite(params: SetMeetingFavoriteRequest): Pro
     .eq('meeting_id', meetingId);
 
   if (error) throw error;
+}
+
+export async function createMeeting(params: CreateMeetingRequest): Promise<Meeting> {
+  const user = await requireUser();
+
+  if (!Object.values(params).every(Boolean)) throw new Error();
+
+  const { region2, imageUri, title, description } = params;
+
+  const fileId = `${user.id}-${Date.now()}`;
+  const imageUrl = await uploadMeetingThumbnail(fileId, imageUri);
+
+  const { data, error } = await supabase
+    .from('meetings')
+    .insert({
+      host_id: user.id,
+      thumbnail_url: imageUrl,
+      region2,
+      title,
+      description,
+      member_count: 1,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw new Error();
+
+  return { ...toMeeting(data), isFavorite: false };
+}
+
+export async function uploadMeetingThumbnail(fileId: string, imageUri: string): Promise<string> {
+  const user = await requireUser();
+  const path = `meetings/${user.id}/${fileId}.jpg`;
+
+  const base64 = await FileSystem.readAsStringAsync(imageUri, {
+    encoding: 'base64',
+  });
+
+  const arrayBuffer = decode(base64);
+
+  const { error } = await supabase.storage.from('meeting-thumbnails').upload(path, arrayBuffer, {
+    contentType: 'image/jpeg',
+    upsert: true,
+  });
+
+  if (error) throw error;
+
+  const { data: urlData } = supabase.storage.from('meeting-thumbnails').getPublicUrl(path);
+  return urlData.publicUrl;
 }
