@@ -4,4 +4,7 @@ export const BACK_SCREEN_OPTIONS = {
   headerBackButtonDisplayMode: 'minimal' as const,
 };
 
-export const BACK_SCREENS = [{ name: '(screen)/address-search', options: { title: '주소 검색' } }];
+export const BACK_SCREENS = [
+  { name: '(screen)/address-search', options: { title: '주소 검색' } },
+  { name: '(screen)/meetings/create', options: { title: '모임 개설' } },
+];
