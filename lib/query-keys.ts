@@ -8,6 +8,7 @@ export const queryKeys = {
   meetings: {
     all: ['meetings'],
     list: (region2: string) => ['meetings', 'list', region2],
+    saved: ['meetings', 'saved'],
     byId: (meetingId: string) => ['meetings', 'byId', meetingId],
   },
 };

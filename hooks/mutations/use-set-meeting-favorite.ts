@@ -8,7 +8,6 @@ export default function useSetMeetingFavorite() {
 
   return useMutation({
     mutationFn: setMeetingFavorite,
-
     onMutate: async ({ meetingId, isFavorite }) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.meetings.byId(meetingId) });
 
@@ -20,7 +19,9 @@ export default function useSetMeetingFavorite() {
 
       return { prev };
     },
-
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.saved });
+    },
     onError: (_err, _vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(queryKeys.meetings.byId(ctx.prev.id), ctx.prev);
     },

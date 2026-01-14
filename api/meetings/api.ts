@@ -161,3 +161,27 @@ export async function uploadMeetingThumbnail(fileId: string, imageUri: string): 
   const { data: urlData } = supabase.storage.from('meeting-thumbnails').getPublicUrl(path);
   return urlData.publicUrl;
 }
+
+export async function getSavedMeetings(): Promise<Meeting[]> {
+  const user = await requireUser();
+
+  const { data: favRows, error: favError } = await supabase
+    .from('meeting_favorites')
+    .select('meeting_id')
+    .eq('user_id', user.id);
+
+  if (favError) throw favError;
+
+  const ids = (favRows ?? []).map((r) => r.meeting_id);
+  if (ids.length === 0) return [];
+
+  const { data, error } = await supabase.from('meetings').select('*').in('id', ids);
+  if (error) throw error;
+
+  const meetings = (data ?? []).map(toMeeting).map((m) => ({ ...m, isFavorite: true }));
+
+  const order = new Map(ids.map((id, i) => [id, i]));
+  meetings.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+
+  return meetings;
+}
