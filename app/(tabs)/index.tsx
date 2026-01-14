@@ -4,6 +4,8 @@ import { ActivityIndicator, FlatList, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import CreateMeetingFab from '@/components/meetings/create-meeting-fab';
 import MeetingListItem from '@/components/meetings/meetings-list-item';
+import Icon from '@/components/ui/icon';
+import Result from '@/components/ui/result';
 import Title from '@/components/ui/title';
 import useMeetings from '@/hooks/queries/use-meetings';
 import useProfile from '@/hooks/queries/use-profile';
@@ -59,6 +61,14 @@ export default function Index() {
           ) : null
         }
       />
+
+      {meetingIds.length === 0 && isRefetching && (
+        <Result
+          figure={<Icon name="information-circle-outline" size={100} />}
+          title="표시할 모임이 없어요"
+          description="지역을 바꾸거나 새 모임을 만들어보세요"
+        />
+      )}
 
       <CreateMeetingFab />
     </Screen>

@@ -5,18 +5,28 @@ import MeetingsBadge from '@/components/meetings/meetings-badge';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { BACK_SCREEN_OPTIONS } from '@/constants/screens';
+import useJoinMeeting from '@/hooks/mutations/use-join-meeting';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
+import { toast } from '@/utils/toast';
 
 export default function Detail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: meeting } = useMeetingById(id, 'detail');
   const { mutate: toggleFavorite } = useSetMeetingFavorite();
+  const { mutate: joinMeeting, isPending: isPendingJoinMeeting } = useJoinMeeting(id, {
+    onSuccess: () => {
+      toast.success('모임에 참여했습니다');
+    },
+    onError: () => {
+      toast.error('모임 참여에 실패했습니다');
+    },
+  });
 
   if (!meeting) return null;
 
-  const { title, description, thumbnailUrl, isFavorite, region2, memberCount } = meeting;
+  const { title, description, thumbnailUrl, isFavorite, region2, memberCount, isJoined } = meeting;
 
   return (
     <Screen hasHeader>
@@ -43,8 +53,10 @@ export default function Detail() {
         </Pressable>
 
         <Button
-          title="참여하기"
-          onPress={() => {}}
+          title={isJoined ? '참여중' : '참여하기'}
+          disabled={isJoined}
+          isLoading={isPendingJoinMeeting}
+          onPress={() => joinMeeting(id)}
           className="h-16 flex-1 rounded-none rounded-r-lg"
         />
       </View>

@@ -7,4 +7,5 @@ export interface Meeting {
   memberCount: number;
   createdAt: string;
   isFavorite: boolean;
+  isJoined?: boolean;
 }
