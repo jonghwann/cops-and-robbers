@@ -55,7 +55,7 @@ export default function Create() {
     <Screen hasHeader>
       <View className="gap-4">
         {image ? (
-          <Image source={{ uri: values.image }} className="aspect-[20/9] rounded-lg" />
+          <Image source={{ uri: values.image }} className="aspect-[20/9] w-full rounded-lg" />
         ) : (
           <Pressable
             onPress={handlePickImage}

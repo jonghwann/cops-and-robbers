@@ -17,7 +17,6 @@ export default function useCreateMeeting(
       callbacks?.onSuccess?.(data);
     },
     onError: (error) => {
-      console.log('error', error);
       callbacks?.onError?.(error);
     },
   });
