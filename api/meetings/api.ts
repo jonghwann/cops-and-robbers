@@ -84,13 +84,13 @@ export async function getMeetings(
 
   const joinedIds = await getJoinedIdSet(
     user.id,
-    meetingsBase.map((m) => m.id),
+    meetingsBase.map((meeting) => meeting.id),
   );
 
-  const meetings = meetingsBase.map((meeting) => ({
+  const meetings = meetingsBase.map((meeting, idx) => ({
     ...meeting,
     isFavorite: favoriteIds.has(meeting.id),
-    isJoined: joinedIds.has(meeting.id),
+    isJoined: joinedIds.has(meeting.id) || pageRows[idx].host_id === user.id,
   }));
 
   const lastRow = pageRows[pageRows.length - 1];
@@ -111,14 +111,17 @@ export async function getMeetingById(id: string): Promise<Meeting> {
 
   const meeting = toMeeting(data);
   const memberCount = data.meeting_members?.[0]?.count ?? 0;
+
   const joinedIds = await getJoinedIdSet(user.id, [id]);
   const favoriteIds = await getFavoriteIdSet(user.id, [id]);
+
+  const isHost = data.host_id === user.id;
 
   return {
     ...meeting,
     memberCount,
     isFavorite: favoriteIds.has(id),
-    isJoined: joinedIds.has(id),
+    isJoined: isHost || joinedIds.has(id),
   };
 }
 
@@ -164,12 +167,12 @@ export async function createMeeting(params: CreateMeetingRequest): Promise<Meeti
       description,
       member_count: 1,
     })
-    .select('*')
+    .select('*, meeting_members(count)')
     .single();
 
   if (error) throw new Error();
 
-  return { ...toMeeting(data), isFavorite: false };
+  return { ...toMeeting(data), isFavorite: false, isJoined: true };
 }
 
 export async function uploadMeetingThumbnail(fileId: string, imageUri: string): Promise<string> {
@@ -203,13 +206,16 @@ export async function getSavedMeetings(): Promise<Meeting[]> {
 
   if (favError) throw favError;
 
-  const ids = (favRows ?? []).map((r) => r.meeting_id);
+  const ids = (favRows ?? []).map((row) => row.meeting_id);
   if (ids.length === 0) return [];
 
-  const { data, error } = await supabase.from('meetings').select('*').in('id', ids);
+  const { data, error } = await supabase
+    .from('meetings')
+    .select('*, meeting_members(count)')
+    .in('id', ids);
   if (error) throw error;
 
-  const meetings = (data ?? []).map(toMeeting).map((m) => ({ ...m, isFavorite: true }));
+  const meetings = (data ?? []).map(toMeeting).map((meeting) => ({ ...meeting, isFavorite: true }));
 
   const order = new Map(ids.map((id, i) => [id, i]));
   meetings.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -226,4 +232,51 @@ export async function joinMeeting(meetingId: string): Promise<void> {
   });
 
   if (error) throw error;
+}
+
+export async function getMyMeetings(): Promise<Meeting[]> {
+  const user = await requireUser();
+
+  const { data: memberRows, error: memberError } = await supabase
+    .from('meeting_members')
+    .select('meeting_id')
+    .eq('user_id', user.id);
+
+  if (memberError) throw memberError;
+
+  const memberIds = (memberRows ?? []).map((row) => row.meeting_id);
+
+  let query = supabase
+    .from('meetings')
+    .select('*, meeting_members(count)')
+    .order('created_at', { ascending: false });
+
+  if (memberIds.length > 0) {
+    query = query.or(`host_id.eq.${user.id},id.in.(${memberIds.join(',')})`);
+  } else {
+    query = query.eq('host_id', user.id);
+  }
+
+  const { data, error } = await query;
+  if (error) throw error;
+
+  const meetingsBase = (data ?? []).map(toMeeting);
+
+  const favoriteIds = await getFavoriteIdSet(
+    user.id,
+    meetingsBase.map((meeting) => meeting.id),
+  );
+
+  const memberIdSet = new Set(memberIds);
+
+  return (data ?? []).map((row) => {
+    const meeting = toMeeting(row);
+    const isHost = row.host_id === user.id;
+
+    return {
+      ...meeting,
+      isFavorite: favoriteIds.has(meeting.id),
+      isJoined: isHost || memberIdSet.has(meeting.id),
+    };
+  });
 }
