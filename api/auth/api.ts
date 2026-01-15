@@ -1,3 +1,5 @@
+import { decode } from 'base64-arraybuffer';
+import * as FileSystem from 'expo-file-system/legacy';
 import { requireUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/types/profile';
@@ -37,8 +39,8 @@ export async function getProfile(): Promise<Profile | null> {
   if (error) throw error;
   if (!data) return null;
 
-  const { birth_date, h_code, ...rest } = data;
-  return { ...rest, birthDate: birth_date, hCode: h_code };
+  const { birth_date, h_code, avatar_url, ...rest } = data;
+  return { ...rest, birthDate: birth_date, hCode: h_code, avatarUrl: avatar_url };
 }
 
 export async function signUp(params: SignUpRequest): Promise<void> {
@@ -67,4 +69,24 @@ export async function updateProfile(params: UpdateProfileRequest): Promise<void>
     .eq('id', user.id);
 
   if (error) throw error;
+}
+
+export async function uploadProfileAvatar(imageUri: string): Promise<string> {
+  const user = await requireUser();
+  const path = `avatars/${user.id}/avatar.jpg`;
+
+  const base64 = await FileSystem.readAsStringAsync(imageUri, {
+    encoding: 'base64',
+  });
+
+  const arrayBuffer = decode(base64);
+
+  const { error } = await supabase.storage.from('profile-avatars').upload(path, arrayBuffer, {
+    contentType: 'image/jpeg',
+    upsert: true,
+  });
+  if (error) throw error;
+
+  const { data } = supabase.storage.from('profile-avatars').getPublicUrl(path);
+  return data.publicUrl;
 }

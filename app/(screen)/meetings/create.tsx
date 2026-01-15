@@ -25,7 +25,7 @@ export default function Create() {
     profile?.region2 ?? '',
     {
       onSuccess: (data) => {
-        router.push(`/meetings/${data.id}`);
+        router.replace(`/meetings/${data.id}`);
       },
       onError: () => {
         toast.error('모임 생성에 실패했습니다');

@@ -8,9 +8,9 @@ export default function useJoinMeeting(meetingId: string, callbacks?: UseMutatio
 
   return useMutation({
     mutationFn: joinMeeting,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.meetings.byId(meetingId) });
-      callbacks?.onSuccess?.();
+      callbacks?.onSuccess?.(data);
     },
     onError: (error) => {
       callbacks?.onError?.(error);

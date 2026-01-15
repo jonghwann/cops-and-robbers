@@ -5,8 +5,8 @@ import type { UseMutationCallbacks } from '@/types/mutation';
 export default function useSignInWithOtp(callbacks?: UseMutationCallbacks) {
   return useMutation({
     mutationFn: signInWithOtp,
-    onSuccess: () => {
-      callbacks?.onSuccess?.();
+    onSuccess: (data) => {
+      callbacks?.onSuccess?.(data);
     },
     onError: (error) => {
       callbacks?.onError?.(error);

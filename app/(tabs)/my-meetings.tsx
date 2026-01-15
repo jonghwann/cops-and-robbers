@@ -20,7 +20,12 @@ export default function MyMeetings() {
           description="모임에 참여하거나 직접 만들어보세요"
         />
       ) : (
-        <FlatList data={myMeetings} renderItem={({ item }) => <MeetingListItem id={item.id} />} />
+        <FlatList
+          data={myMeetings}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <MeetingListItem id={item.id} />}
+          contentContainerClassName="gap-4"
+        />
       )}
     </Screen>
   );

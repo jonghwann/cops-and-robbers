@@ -165,12 +165,17 @@ export async function createMeeting(params: CreateMeetingRequest): Promise<Meeti
       region2,
       title,
       description,
-      member_count: 1,
     })
     .select('*, meeting_members(count)')
     .single();
 
   if (error) throw new Error();
+
+  const { error: memberErr } = await supabase.from('meeting_members').insert({
+    meeting_id: data.id,
+    user_id: user.id,
+  });
+  if (memberErr) throw memberErr;
 
   return { ...toMeeting(data), isFavorite: false, isJoined: true };
 }
@@ -189,7 +194,6 @@ export async function uploadMeetingThumbnail(fileId: string, imageUri: string): 
     contentType: 'image/jpeg',
     upsert: true,
   });
-
   if (error) throw error;
 
   const { data: urlData } = supabase.storage.from('meeting-thumbnails').getPublicUrl(path);

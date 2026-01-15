@@ -16,7 +16,7 @@ export default function CreateMeetingFab({ className }: MeetingsButtonProps) {
     <Link href="/(screen)/meetings/create" asChild>
       <Pressable
         className={cn(
-          'absolute right-5 size-14 items-center justify-center rounded-full bg-primary',
+          'absolute right-5 size-16 items-center justify-center rounded-full bg-primary',
           className,
         )}
         style={{ bottom: insets.bottom + base }}

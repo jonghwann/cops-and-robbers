@@ -10,7 +10,9 @@ export interface SignUpRequest extends Omit<Profile, 'birthDate' | 'hCode'> {
   h_code: string;
 }
 
-export interface UpdateProfileRequest extends Omit<Partial<Profile>, 'birthDate' | 'hCode'> {
+export interface UpdateProfileRequest
+  extends Omit<Partial<Profile>, 'birthDate' | 'hCode' | 'avatarUrl'> {
   birth_date?: string;
   h_code?: string;
+  avatar_url?: string;
 }

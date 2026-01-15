@@ -11,4 +11,5 @@ export interface Profile extends Address {
   name: string;
   gender: Gender;
   birthDate: string;
+  avatarUrl?: string;
 }

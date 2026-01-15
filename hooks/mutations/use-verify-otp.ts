@@ -8,9 +8,9 @@ export default function useVerifyOtp(callbacks?: UseMutationCallbacks) {
 
   return useMutation({
     mutationFn: verifyOtp,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.profile.all });
-      callbacks?.onSuccess?.();
+      callbacks?.onSuccess?.(data);
     },
     onError: (error) => {
       callbacks?.onError?.(error);
