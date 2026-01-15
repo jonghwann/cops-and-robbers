@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import MeetingsBadge from '@/components/meetings/meetings-badge';
@@ -8,12 +9,14 @@ import { BACK_SCREEN_OPTIONS } from '@/constants/screens';
 import useJoinMeeting from '@/hooks/mutations/use-join-meeting';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
+import { useRecentMeetingsActions } from '@/hooks/queries/use-recent-meeting';
 import { toast } from '@/utils/toast';
 
 export default function Detail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: meeting } = useMeetingById(id, 'detail');
+  const { add } = useRecentMeetingsActions();
   const { mutate: toggleFavorite } = useSetMeetingFavorite();
   const { mutate: joinMeeting, isPending: isPendingJoinMeeting } = useJoinMeeting(id, {
     onSuccess: () => {
@@ -23,6 +26,10 @@ export default function Detail() {
       toast.error('모임 참여에 실패했습니다');
     },
   });
+
+  useEffect(() => {
+    add(id);
+  }, [add, id]);
 
   if (!meeting) return null;
 

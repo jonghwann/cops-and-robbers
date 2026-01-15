@@ -3,6 +3,7 @@ import Screen from '@/components/layout/screen';
 import MeetingListItem from '@/components/meetings/meetings-list-item';
 import Icon from '@/components/ui/icon';
 import Result from '@/components/ui/result';
+import Title from '@/components/ui/title';
 import { useMyMeetings } from '@/hooks/queries/use-my-meetings';
 
 export default function MyMeetings() {
@@ -10,6 +11,8 @@ export default function MyMeetings() {
 
   return (
     <Screen>
+      <Title title="내 모임" />
+
       {myMeetings?.length === 0 ? (
         <Result
           figure={<Icon name="information-circle-outline" size={100} />}

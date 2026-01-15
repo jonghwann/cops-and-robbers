@@ -3,6 +3,7 @@ import Screen from '@/components/layout/screen';
 import MeetingListItem from '@/components/meetings/meetings-list-item';
 import Icon from '@/components/ui/icon';
 import Result from '@/components/ui/result';
+import Title from '@/components/ui/title';
 import useSavedMeetings from '@/hooks/queries/use-saved-meetings';
 
 export default function SavedMeetings() {
@@ -10,6 +11,8 @@ export default function SavedMeetings() {
 
   return (
     <Screen>
+      <Title title="찜 모임" />
+
       {meetings?.length === 0 ? (
         <Result
           figure={<Icon name="information-circle-outline" size={100} />}
