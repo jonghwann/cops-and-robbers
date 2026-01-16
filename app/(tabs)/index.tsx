@@ -47,6 +47,7 @@ export default function Index() {
         keyExtractor={(id) => id}
         renderItem={({ item }) => <MeetingListItem id={item} />}
         contentContainerClassName="gap-4"
+        showsVerticalScrollIndicator={false}
         refreshing={isRefetching && !isFetchingNextPage}
         onRefresh={onRefresh}
         onEndReachedThreshold={0.6}

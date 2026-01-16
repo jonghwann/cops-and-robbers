@@ -8,6 +8,7 @@ export interface Address {
 }
 
 export interface Profile extends Address {
+  id: string;
   name: string;
   gender: Gender;
   birthDate: string;

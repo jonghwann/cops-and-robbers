@@ -75,6 +75,7 @@ export default function Profile() {
           keyExtractor={(item) => item}
           renderItem={({ item }) => <MeetingListItem id={item} />}
           contentContainerClassName="gap-4"
+          showsVerticalScrollIndicator={false}
         />
       )}
     </Screen>

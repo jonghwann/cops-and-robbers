@@ -25,6 +25,7 @@ export default function SavedMeetings() {
           keyExtractor={(id) => id}
           renderItem={({ item }) => <MeetingListItem id={item} />}
           contentContainerClassName="gap-4"
+          showsVerticalScrollIndicator={false}
         />
       )}
     </Screen>

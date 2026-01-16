@@ -15,6 +15,7 @@ import type {
 function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
   return {
     id: row.id,
+    hostId: row.host_id,
     title: row.title,
     description: row.description,
     thumbnailUrl: row.thumbnail_url,

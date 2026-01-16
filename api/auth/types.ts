@@ -5,7 +5,7 @@ export interface VerifyOtpRequest {
   code: string;
 }
 
-export interface SignUpRequest extends Omit<Profile, 'birthDate' | 'hCode'> {
+export interface SignUpRequest extends Omit<Profile, 'id' | 'birthDate' | 'hCode'> {
   birth_date: string;
   h_code: string;
 }

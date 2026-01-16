@@ -39,8 +39,8 @@ export async function getProfile(): Promise<Profile | null> {
   if (error) throw error;
   if (!data) return null;
 
-  const { birth_date, h_code, avatar_url, ...rest } = data;
-  return { ...rest, birthDate: birth_date, hCode: h_code, avatarUrl: avatar_url };
+  const { id, birth_date, h_code, avatar_url, ...rest } = data;
+  return { ...rest, id, birthDate: birth_date, hCode: h_code, avatarUrl: avatar_url };
 }
 
 export async function signUp(params: SignUpRequest): Promise<void> {

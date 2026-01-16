@@ -1,5 +1,6 @@
 export interface Meeting {
   id: string;
+  hostId: string;
   title: string;
   description: string;
   thumbnailUrl: string;

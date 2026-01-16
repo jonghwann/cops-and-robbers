@@ -25,6 +25,7 @@ export default function MyMeetings() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <MeetingListItem id={item.id} />}
           contentContainerClassName="gap-4"
+          showsVerticalScrollIndicator={false}
         />
       )}
     </Screen>

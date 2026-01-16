@@ -12,12 +12,14 @@ import useJoinMeeting from '@/hooks/mutations/use-join-meeting';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
 import useMeetingMembers from '@/hooks/queries/use-meeting-members';
+import useProfile from '@/hooks/queries/use-profile';
 import { useRecentMeetingsActions } from '@/hooks/queries/use-recent-meeting';
 import { toast } from '@/utils/toast';
 
 export default function Detail() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
+  const { data: profile } = useProfile();
   const { data: meeting } = useMeetingById(id, 'detail');
   const { add } = useRecentMeetingsActions();
   const { mutate: toggleFavorite } = useSetMeetingFavorite();
@@ -36,7 +38,10 @@ export default function Detail() {
 
   if (!meeting) return null;
 
-  const { title, description, thumbnailUrl, isFavorite, region2, memberCount, isJoined } = meeting;
+  const { hostId, title, description, thumbnailUrl, isFavorite, region2, memberCount, isJoined } =
+    meeting;
+
+  const isHost = hostId === profile?.id;
 
   const onPressMore = () => {
     Alert.alert('', undefined, [
@@ -55,6 +60,8 @@ export default function Detail() {
     ]);
   };
 
+  console.log(isHost);
+
   return (
     <Screen edges={['left', 'right']} hasHeader className="px-0">
       <ScrollView className="px-5">
@@ -70,7 +77,9 @@ export default function Detail() {
                   color={isFavorite ? 'red' : '#e5e7eb'}
                   onPress={() => toggleFavorite({ meetingId: meeting.id, isFavorite: !isFavorite })}
                 />
-                <Icon name="ellipsis-horizontal" size={24} color="black" onPress={onPressMore} />
+                {isHost && (
+                  <Icon name="ellipsis-horizontal" size={24} color="black" onPress={onPressMore} />
+                )}
               </View>
             ),
           }}
