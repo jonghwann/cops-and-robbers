@@ -221,7 +221,18 @@ export async function getSavedMeetings(): Promise<Meeting[]> {
     .in('id', ids);
   if (error) throw error;
 
-  const meetings = (data ?? []).map(toMeeting).map((meeting) => ({ ...meeting, isFavorite: true }));
+  const joinedIds = await getJoinedIdSet(user.id, ids);
+
+  const meetings = (data ?? []).map((row: any) => {
+    const m = toMeeting(row);
+    const isHost = row.host_id === user.id;
+
+    return {
+      ...m,
+      isFavorite: true,
+      isJoined: isHost || joinedIds.has(m.id),
+    };
+  });
 
   const order = new Map(ids.map((id, i) => [id, i]));
   meetings.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
@@ -354,4 +365,25 @@ export async function updateMeeting(params: UpdateMeetingRequest): Promise<Meeti
     isFavorite: favoriteIds.has(params.meetingId),
     isJoined: isHost || joinedIds.has(params.meetingId),
   };
+}
+
+export async function deleteMeeting(meetingId: string): Promise<void> {
+  const user = await requireUser();
+
+  const { error: deleteError } = await supabase
+    .from('meetings')
+    .delete()
+    .eq('id', meetingId)
+    .eq('host_id', user.id);
+
+  if (deleteError) throw deleteError;
+
+  const { data: stillExists, error: checkError } = await supabase
+    .from('meetings')
+    .select('id')
+    .eq('id', meetingId)
+    .maybeSingle();
+
+  if (checkError) throw checkError;
+  if (stillExists) throw new Error('모임을 삭제할 권한이 없습니다.');
 }

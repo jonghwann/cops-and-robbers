@@ -23,18 +23,12 @@ export default function Index() {
       setIsOtpRequested(true);
       toast.success('인증번호가 전송되었습니다');
     },
-    onError: () => {
-      toast.error('인증번호 전송에 실패했습니다');
-    },
+    onError: () => toast.error('인증번호 전송에 실패했습니다'),
   });
 
   const { mutate: verifyOtp, isPending: isVerifyOtpPending } = useVerifyOtp({
-    onSuccess: () => {
-      router.replace('/(auth)/sign-up');
-    },
-    onError: () => {
-      toast.error('인증번호를 다시 확인해주세요');
-    },
+    onSuccess: () => router.replace('/(auth)/sign-up'),
+    onError: () => toast.error('인증번호를 다시 확인해주세요'),
   });
 
   const handleChangeText = (field: keyof typeof initialValues, value: string) => {

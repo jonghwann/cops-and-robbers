@@ -7,6 +7,7 @@ import Border from '@/components/ui/border';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { BACK_SCREEN_OPTIONS } from '@/constants/screens';
+import useDeleteMeeting from '@/hooks/mutations/use-delete-meeting';
 import useJoinMeeting from '@/hooks/mutations/use-join-meeting';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
@@ -22,12 +23,11 @@ export default function Detail() {
   const { mutate: toggleFavorite } = useSetMeetingFavorite();
   const { data: members } = useMeetingMembers(id);
   const { mutate: joinMeeting, isPending: isPendingJoinMeeting } = useJoinMeeting(id, {
-    onSuccess: () => {
-      toast.success('모임에 참여했습니다');
-    },
-    onError: () => {
-      toast.error('모임 참여에 실패했습니다');
-    },
+    onError: () => toast.error('모임 참여에 실패했습니다'),
+  });
+  const { mutate: deleteMeeting } = useDeleteMeeting(id, {
+    onSuccess: () => router.back(),
+    onError: () => toast.error('모임 삭제에 실패했습니다'),
   });
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function Detail() {
         style: 'destructive',
         onPress: () => {
           Alert.alert('정말 삭제하시겠어요?', '삭제하면 되돌릴 수 없어요', [
-            { text: '삭제', style: 'destructive', onPress: () => console.log('모임 삭제하기') },
+            { text: '삭제', style: 'destructive', onPress: () => deleteMeeting(id) },
             { text: '취소', style: 'cancel' },
           ]);
         },
@@ -64,7 +64,12 @@ export default function Detail() {
             title,
             headerRight: () => (
               <View className="flex-row gap-6 px-2">
-                <Icon name="heart" size={24} color="#e5e7eb" />
+                <Icon
+                  name="heart"
+                  size={24}
+                  color={isFavorite ? 'red' : '#e5e7eb'}
+                  onPress={() => toggleFavorite({ meetingId: meeting.id, isFavorite: !isFavorite })}
+                />
                 <Icon name="ellipsis-horizontal" size={24} color="black" onPress={onPressMore} />
               </View>
             ),
@@ -118,7 +123,6 @@ export default function Detail() {
 
           <Button
             title={'참여하기'}
-            disabled={isJoined}
             isLoading={isPendingJoinMeeting}
             onPress={() => joinMeeting(id)}
             className="h-16 flex-1 rounded-none rounded-r-lg"
