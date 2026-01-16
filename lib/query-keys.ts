@@ -11,5 +11,6 @@ export const queryKeys = {
     my: ['meetings', 'my'],
     saved: ['meetings', 'saved'],
     byId: (meetingId: string) => ['meetings', 'byId', meetingId],
+    members: (meetingId: string) => ['meetings', 'members', meetingId],
   },
 };

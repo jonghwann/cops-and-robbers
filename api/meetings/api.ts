@@ -6,8 +6,10 @@ import type { Meeting } from '@/types/meeting';
 import type {
   CreateMeetingRequest,
   GetMeetingsRequest,
+  MeetingMember,
   MeetingsCursor,
   SetMeetingFavoriteRequest,
+  UpdateMeetingRequest,
 } from './type';
 
 function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
@@ -283,4 +285,73 @@ export async function getMyMeetings(): Promise<Meeting[]> {
       isJoined: isHost || memberIdSet.has(meeting.id),
     };
   });
+}
+
+export async function getMeetingMembers(meetingId: string): Promise<MeetingMember[]> {
+  await requireUser();
+
+  const { data, error } = await supabase
+    .from('meeting_members')
+    .select('user_id, profiles(name, avatar_url)')
+    .eq('meeting_id', meetingId)
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    userId: row.user_id,
+    name: row.profiles?.name ?? '',
+    avatarUrl: row.profiles?.avatar_url ?? null,
+  }));
+}
+
+export async function updateMeeting(params: UpdateMeetingRequest): Promise<Meeting> {
+  const user = await requireUser();
+
+  const title = params.title?.trim();
+  const description = params.description?.trim();
+  if (!params.meetingId || !title || !description) {
+    throw new Error('필수값이 누락되었습니다.');
+  }
+
+  let thumbnailUrl: string | undefined;
+
+  if (params.imageUri) {
+    const fileId = `${user.id}-${Date.now()}`;
+    thumbnailUrl = await uploadMeetingThumbnail(fileId, params.imageUri);
+  }
+
+  const payload: Record<string, any> = {
+    title,
+    description,
+  };
+  if (thumbnailUrl) payload.thumbnail_url = thumbnailUrl;
+
+  const { error: updateError } = await supabase
+    .from('meetings')
+    .update(payload)
+    .eq('id', params.meetingId)
+    .eq('host_id', user.id);
+
+  if (updateError) throw updateError;
+
+  const { data, error: selectError } = await supabase
+    .from('meetings')
+    .select('*, meeting_members(count)')
+    .eq('id', params.meetingId)
+    .single();
+
+  if (selectError) throw selectError;
+
+  const base = toMeeting(data);
+
+  const favoriteIds = await getFavoriteIdSet(user.id, [params.meetingId]);
+  const joinedIds = await getJoinedIdSet(user.id, [params.meetingId]);
+  const isHost = data.host_id === user.id;
+
+  return {
+    ...base,
+    isFavorite: favoriteIds.has(params.meetingId),
+    isJoined: isHost || joinedIds.has(params.meetingId),
+  };
 }

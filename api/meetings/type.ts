@@ -20,3 +20,16 @@ export interface CreateMeetingRequest {
   title: string;
   description: string;
 }
+
+export interface MeetingMember {
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+export interface UpdateMeetingRequest {
+  meetingId: string;
+  title: string;
+  description: string;
+  imageUri?: string;
+}
