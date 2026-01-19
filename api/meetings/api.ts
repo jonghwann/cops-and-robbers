@@ -5,8 +5,10 @@ import { supabase } from '@/lib/supabase';
 import type { Meeting } from '@/types/meeting';
 import type {
   CreateMeetingRequest,
+  CreateMeetingScheduleRequest,
   GetMeetingsRequest,
   MeetingMember,
+  MeetingSchedule,
   MeetingsCursor,
   SetMeetingFavoriteRequest,
   UpdateMeetingRequest,
@@ -387,4 +389,78 @@ export async function deleteMeeting(meetingId: string): Promise<void> {
 
   if (checkError) throw checkError;
   if (stillExists) throw new Error('모임을 삭제할 권한이 없습니다.');
+}
+
+export async function getMeetingSchedules(meetingId: string): Promise<MeetingSchedule[]> {
+  await requireUser();
+
+  const { data, error } = await supabase
+    .from('meeting_schedules')
+    .select('*')
+    .eq('meeting_id', meetingId)
+    .order('starts_at', { ascending: true });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    meetingId: row.meeting_id,
+    title: row.title,
+    startsAt: row.starts_at,
+    locationName: row.location_name,
+    locationUrl: row.location_url,
+    capacity: row.capacity,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function createMeetingSchedule(
+  params: CreateMeetingScheduleRequest,
+): Promise<MeetingSchedule> {
+  await requireUser();
+
+  const required = {
+    meetingId: params.meetingId,
+    title: params.title?.trim(),
+    startsAt: params.startsAt,
+    locationName: params.locationName?.trim(),
+    locationUrl: params.locationUrl?.trim(),
+    capacity: params.capacity,
+  };
+  if (
+    !required.meetingId ||
+    !required.title ||
+    !required.startsAt ||
+    !required.locationName ||
+    !required.locationUrl
+  )
+    throw new Error('필수값이 누락되었습니다.');
+  if (!Number.isFinite(required.capacity) || required.capacity < 2)
+    throw new Error('정원은 2명 이상이어야 합니다.');
+
+  const { data, error } = await supabase
+    .from('meeting_schedules')
+    .insert({
+      meeting_id: required.meetingId,
+      title: required.title,
+      starts_at: required.startsAt,
+      location_name: required.locationName,
+      location_url: required.locationUrl,
+      capacity: required.capacity,
+    })
+    .select('*')
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    meetingId: data.meeting_id,
+    title: data.title,
+    startsAt: data.starts_at,
+    locationName: data.location_name,
+    locationUrl: data.location_url,
+    capacity: data.capacity,
+    createdAt: data.created_at,
+  };
 }

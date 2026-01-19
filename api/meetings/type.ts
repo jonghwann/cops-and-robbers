@@ -33,3 +33,23 @@ export interface UpdateMeetingRequest {
   description: string;
   imageUri?: string;
 }
+
+export interface MeetingSchedule {
+  id: string;
+  meetingId: string;
+  title: string;
+  startsAt: string;
+  locationName: string;
+  locationUrl: string;
+  capacity: number;
+  createdAt: string;
+}
+
+export interface CreateMeetingScheduleRequest {
+  meetingId: string;
+  title: string;
+  startsAt: string;
+  locationName: string;
+  locationUrl: string;
+  capacity: number;
+}

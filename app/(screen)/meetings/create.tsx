@@ -10,8 +10,12 @@ export default function Create() {
   const region2 = profile?.region2 ?? '';
 
   const { mutate: createMeeting, isPending } = useCreateMeeting(region2, {
-    onSuccess: (data) => router.replace(`/meetings/${data.id}`),
-    onError: () => toast.error('모임 생성에 실패했습니다'),
+    onSuccess: (data) => {
+      router.replace(`/meetings/${data.id}`);
+    },
+    onError: () => {
+      toast.error('모임 생성에 실패했습니다');
+    },
   });
 
   return (

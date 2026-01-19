@@ -1,6 +1,7 @@
+import { Image } from 'expo-image';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
-import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import MeetingsBadge from '@/components/meetings/meetings-badge';
 import Border from '@/components/ui/border';
@@ -12,38 +13,37 @@ import useJoinMeeting from '@/hooks/mutations/use-join-meeting';
 import useSetMeetingFavorite from '@/hooks/mutations/use-set-meeting-favorite';
 import useMeetingById from '@/hooks/queries/use-meeting-by-id';
 import useMeetingMembers from '@/hooks/queries/use-meeting-members';
+import useMeetingSchedules from '@/hooks/queries/use-meeting-schedules';
 import useProfile from '@/hooks/queries/use-profile';
 import { useRecentMeetingsActions } from '@/hooks/queries/use-recent-meeting';
 import { toast } from '@/utils/toast';
 
-export default function Detail() {
+export default function Index() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: profile } = useProfile();
   const { data: meeting } = useMeetingById(id, 'detail');
   const { add } = useRecentMeetingsActions();
   const { mutate: toggleFavorite } = useSetMeetingFavorite();
+  const { data: schedules } = useMeetingSchedules(id);
   const { data: members } = useMeetingMembers(id);
+
   const { mutate: joinMeeting, isPending: isPendingJoinMeeting } = useJoinMeeting(id, {
-    onError: () => toast.error('모임 참여에 실패했습니다'),
+    onError: () => {
+      toast.error('모임 참여에 실패했습니다');
+    },
   });
+
   const { mutate: deleteMeeting } = useDeleteMeeting(id, {
-    onSuccess: () => router.back(),
-    onError: () => toast.error('모임 삭제에 실패했습니다'),
+    onSuccess: () => {
+      router.back();
+    },
+    onError: () => {
+      toast.error('모임 삭제에 실패했습니다');
+    },
   });
 
-  useEffect(() => {
-    add(id);
-  }, [add, id]);
-
-  if (!meeting) return null;
-
-  const { hostId, title, description, thumbnailUrl, isFavorite, region2, memberCount, isJoined } =
-    meeting;
-
-  const isHost = hostId === profile?.id;
-
-  const onPressMore = () => {
+  const handleMorePress = () => {
     Alert.alert('', undefined, [
       { text: '모임 수정하기', onPress: () => router.push(`/meetings/edit/${id}`) },
       {
@@ -60,7 +60,15 @@ export default function Detail() {
     ]);
   };
 
-  console.log(isHost);
+  useEffect(() => {
+    add(id);
+  }, [add, id]);
+
+  if (!meeting) return null;
+
+  const { hostId, title, description, thumbnailUrl, isFavorite, region2, memberCount, isJoined } =
+    meeting;
+  const isHost = hostId === profile?.id;
 
   return (
     <Screen edges={['left', 'right']} hasHeader className="px-0">
@@ -78,13 +86,22 @@ export default function Detail() {
                   onPress={() => toggleFavorite({ meetingId: meeting.id, isFavorite: !isFavorite })}
                 />
                 {isHost && (
-                  <Icon name="ellipsis-horizontal" size={24} color="black" onPress={onPressMore} />
+                  <Icon
+                    name="ellipsis-horizontal"
+                    size={24}
+                    color="black"
+                    onPress={handleMorePress}
+                  />
                 )}
               </View>
             ),
           }}
         />
-        <Image source={{ uri: thumbnailUrl }} className="mb-4 aspect-[20/9] w-full rounded-lg" />
+
+        <Image
+          source={{ uri: thumbnailUrl }}
+          style={{ width: '100%', aspectRatio: 20 / 9, borderRadius: 12, marginBottom: 16 }}
+        />
 
         <View className="mb-3 flex-row gap-2">
           <MeetingsBadge title={region2} />
@@ -96,16 +113,42 @@ export default function Detail() {
 
         <Border className="mt-10 mb-6" />
 
+        {/* 일정 목록 */}
         <Text className="mb-6 font-bold text-2xl">일정</Text>
+
+        {schedules && schedules.length === 0 ? (
+          <View>
+            <Text className="font-bold text-xl">아직 일정이 없어요!</Text>
+            <Text className="mb-5 text-gray-400 text-xl">일정을 만들어보세요.</Text>
+
+            <Button
+              title="일정 만들기"
+              onPress={() => router.push(`/meetings/${id}/schedule/create`)}
+            />
+          </View>
+        ) : (
+          schedules?.map((schedule) => (
+            <View key={schedule.id} className="flex-row items-center gap-3">
+              <Text>{schedule.title}</Text>
+              <Text>{schedule.startsAt}</Text>
+              <Text>{schedule.locationName}</Text>
+              <Text>{schedule.locationUrl}</Text>
+              <Text>{schedule.capacity}</Text>
+            </View>
+          ))
+        )}
 
         <Border className="my-6" />
 
+        {/* 멤버 목록 */}
         <Text className="mb-6 font-bold text-2xl">멤버 ({members?.length ?? 0})</Text>
 
         {members?.map((member) => (
           <View key={member.userId} className="flex-row items-center gap-3">
             {member.avatarUrl ? (
-              <Image source={{ uri: member.avatarUrl }} className="size-12 rounded-full" />
+              <View className="size-12 overflow-hidden rounded-full">
+                <Image source={{ uri: member.avatarUrl }} style={{ width: 48, height: 48 }} />
+              </View>
             ) : (
               <View className="relative size-12 rounded-full bg-gray-200">
                 <Icon
@@ -116,6 +159,7 @@ export default function Detail() {
                 />
               </View>
             )}
+
             <Text className="font-bold text-xl">{member.name}</Text>
           </View>
         ))}

@@ -10,12 +10,14 @@ interface DateTimePickerInputProps
     ReactNativeModalDateTimePickerProps,
     'date' | 'isVisible' | 'onConfirm' | 'onCancel'
   > {
+  mode?: 'date' | 'time' | 'datetime';
   date: Date;
   onConfirm?: (date: Date) => void;
   className?: string;
 }
 
 export default function DateTimePickerInput({
+  mode = 'date',
   date,
   onConfirm,
   className,
@@ -36,20 +38,26 @@ export default function DateTimePickerInput({
     setIsVisible(false);
   };
 
+  const formatDate = (date: Date, mode: 'date' | 'time' | 'datetime') => {
+    if (mode === 'time') {
+      return date.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
+    }
+    if (mode === 'datetime') {
+      return `${date.toLocaleDateString('ko-KR').replace(/\.$/, '')} ${date.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })}`;
+    }
+    return date.toLocaleDateString('ko-KR').replace(/\.$/, '');
+  };
+
   return (
     <View className={className}>
       <Pressable onPress={handleInputPress}>
-        <Input
-          value={date.toLocaleDateString('ko-KR').replace(/\.$/, '')}
-          editable={false}
-          pointerEvents="none"
-        />
+        <Input value={formatDate(date, mode)} editable={false} pointerEvents="none" />
       </Pressable>
 
       <DateTimePickerModal
         date={date}
         isVisible={isVisible}
-        mode="date"
+        mode={mode}
         locale="ko-KR"
         onConfirm={handleConfirm}
         onCancel={handleCancel}

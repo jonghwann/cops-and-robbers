@@ -1,33 +1,35 @@
 import { useState } from 'react';
 import { FlatList } from 'react-native';
-import AddressListItem from '@/components/address/address-list-item';
 import Screen from '@/components/layout/screen';
+import PlaceListItem from '@/components/place/place-list-item';
 import SearchField from '@/components/ui/search-field';
-import useSearchAddress from '@/hooks/queries/use-search-address';
+import useSearchPlace from '@/hooks/queries/use-search-place';
 import useDebounce from '@/hooks/use-debounce';
 
-export default function AddressSearch() {
+export default function PlaceSearch() {
   const [query, setQuery] = useState('');
 
   const debouncedQuery = useDebounce(query, 300);
 
-  const { data: addresses } = useSearchAddress(debouncedQuery);
+  const { data: places, fetchNextPage, hasNextPage } = useSearchPlace(debouncedQuery);
 
   return (
     <Screen hasHeader>
       <SearchField
         value={query}
-        placeholder="동·읍·면을 입력해주세요."
+        placeholder="장소명으로 검색해주세요."
         autoFocus
         onChangeText={setQuery}
       />
 
       <FlatList
-        data={addresses}
+        data={places?.pages.flatMap((page) => page.places)}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <AddressListItem {...item} />}
+        onEndReached={() => hasNextPage && fetchNextPage()}
+        onEndReachedThreshold={0.5}
+        renderItem={({ item }) => <PlaceListItem {...item} />}
       />
     </Screen>
   );

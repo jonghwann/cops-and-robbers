@@ -88,5 +88,5 @@ export async function uploadProfileAvatar(imageUri: string): Promise<string> {
   if (error) throw error;
 
   const { data } = supabase.storage.from('profile-avatars').getPublicUrl(path);
-  return data.publicUrl;
+  return `${data.publicUrl}?t=${Date.now()}`;
 }

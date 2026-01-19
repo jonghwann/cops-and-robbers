@@ -10,8 +10,12 @@ export default function Edit() {
 
   const { data: meeting } = useMeetingById(id, 'detail');
   const { mutate: updateMeeting, isPending } = useUpdateMeeting({
-    onSuccess: () => router.back(),
-    onError: () => toast.error('모임 수정에 실패했습니다'),
+    onSuccess: () => {
+      router.back();
+    },
+    onError: () => {
+      toast.error('모임 수정에 실패했습니다');
+    },
   });
 
   if (!meeting) return null;

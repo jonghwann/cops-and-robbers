@@ -1,5 +1,6 @@
+import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import Input from '@/components/ui/input';
@@ -61,7 +62,10 @@ export default function MeetingForm({
     <View className="gap-4">
       {previewUri ? (
         <Pressable onPress={handlePickImage}>
-          <Image source={{ uri: previewUri }} className="aspect-[20/9] w-full rounded-lg" />
+          <Image
+            source={{ uri: previewUri }}
+            style={{ width: '100%', aspectRatio: 20 / 9, borderRadius: 12 }}
+          />
           <Text className="absolute right-3 bottom-2 text-white">이미지 변경</Text>
         </Pressable>
       ) : (
