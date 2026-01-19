@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import MeetingsBadge from '@/components/meetings/meetings-badge';
+import ScheduleListItem from '@/components/schedule/schedule-list-item';
 import Border from '@/components/ui/border';
 import Button from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -127,15 +128,7 @@ export default function Index() {
             />
           </View>
         ) : (
-          schedules?.map((schedule) => (
-            <View key={schedule.id} className="flex-row items-center gap-3">
-              <Text>{schedule.title}</Text>
-              <Text>{schedule.startsAt}</Text>
-              <Text>{schedule.locationName}</Text>
-              <Text>{schedule.locationUrl}</Text>
-              <Text>{schedule.capacity}</Text>
-            </View>
-          ))
+          schedules?.map((schedule) => <ScheduleListItem key={schedule.id} schedule={schedule} />)
         )}
 
         <Border className="my-6" />

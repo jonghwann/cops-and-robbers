@@ -392,15 +392,19 @@ export async function deleteMeeting(meetingId: string): Promise<void> {
 }
 
 export async function getMeetingSchedules(meetingId: string): Promise<MeetingSchedule[]> {
-  await requireUser();
+  const user = await requireUser();
 
   const { data, error } = await supabase
     .from('meeting_schedules')
-    .select('*')
+    .select('*, schedule_members(count)')
     .eq('meeting_id', meetingId)
+    .gte('starts_at', new Date().toISOString())
     .order('starts_at', { ascending: true });
 
   if (error) throw error;
+
+  const scheduleIds = (data ?? []).map((row) => row.id);
+  const joinedIds = await getJoinedScheduleIdSet(user.id, scheduleIds);
 
   return (data ?? []).map((row: any) => ({
     id: row.id,
@@ -410,8 +414,24 @@ export async function getMeetingSchedules(meetingId: string): Promise<MeetingSch
     locationName: row.location_name,
     locationUrl: row.location_url,
     capacity: row.capacity,
+    memberCount: row.schedule_members?.[0]?.count ?? 0,
+    isJoined: joinedIds.has(row.id),
     createdAt: row.created_at,
   }));
+}
+
+async function getJoinedScheduleIdSet(userId: string, scheduleIds: string[]) {
+  if (scheduleIds.length === 0) return new Set<string>();
+
+  const { data, error } = await supabase
+    .from('schedule_members')
+    .select('schedule_id')
+    .eq('user_id', userId)
+    .in('schedule_id', scheduleIds);
+
+  if (error) throw error;
+
+  return new Set((data ?? []).map((row) => row.schedule_id));
 }
 
 export async function createMeetingSchedule(
@@ -461,6 +481,31 @@ export async function createMeetingSchedule(
     locationName: data.location_name,
     locationUrl: data.location_url,
     capacity: data.capacity,
+    memberCount: 0,
+    isJoined: false,
     createdAt: data.created_at,
   };
+}
+
+export async function joinSchedule(scheduleId: string): Promise<void> {
+  const user = await requireUser();
+
+  const { error } = await supabase.from('schedule_members').insert({
+    schedule_id: scheduleId,
+    user_id: user.id,
+  });
+
+  if (error) throw error;
+}
+
+export async function leaveSchedule(scheduleId: string): Promise<void> {
+  const user = await requireUser();
+
+  const { error } = await supabase
+    .from('schedule_members')
+    .delete()
+    .eq('schedule_id', scheduleId)
+    .eq('user_id', user.id);
+
+  if (error) throw error;
 }

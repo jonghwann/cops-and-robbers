@@ -42,6 +42,8 @@ export interface MeetingSchedule {
   locationName: string;
   locationUrl: string;
   capacity: number;
+  memberCount: number;
+  isJoined: boolean;
   createdAt: string;
 }
 
