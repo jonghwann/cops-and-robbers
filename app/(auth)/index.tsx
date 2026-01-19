@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { getProfile } from '@/api/auth/api';
 import Screen from '@/components/layout/screen';
 import Button from '@/components/ui/button';
 import Input from '@/components/ui/input';
@@ -29,8 +30,9 @@ export default function Index() {
   });
 
   const { mutate: verifyOtp, isPending: isVerifyOtpPending } = useVerifyOtp({
-    onSuccess: () => {
-      router.replace('/(auth)/sign-up');
+    onSuccess: async () => {
+      const profile = await getProfile();
+      router.replace(profile ? '/(tabs)' : '/(auth)/sign-up');
     },
     onError: () => {
       toast.error('인증번호를 다시 확인해주세요');

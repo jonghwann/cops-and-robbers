@@ -20,8 +20,8 @@ export default function Index() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    refetch,
-    isRefetching,
+    refetch: refetchMeetings,
+    isRefetching: isMeetingsRefetching,
   } = useMeetings(profile?.region2 ?? '');
 
   const meetingIds = meetings?.pages.flatMap((page) => page.ids) ?? [];
@@ -31,7 +31,7 @@ export default function Index() {
       queryKey: queryKeys.meetings.list(profile?.region2 ?? ''),
       exact: true,
     });
-    refetch();
+    refetchMeetings();
   };
 
   return (
@@ -48,7 +48,7 @@ export default function Index() {
         renderItem={({ item }) => <MeetingListItem id={item} />}
         contentContainerClassName="gap-4"
         showsVerticalScrollIndicator={false}
-        refreshing={isRefetching && !isFetchingNextPage}
+        refreshing={isMeetingsRefetching && !isFetchingNextPage}
         onRefresh={onRefresh}
         onEndReachedThreshold={0.6}
         onEndReached={() => {
@@ -63,7 +63,7 @@ export default function Index() {
         }
       />
 
-      {meetingIds.length === 0 && isRefetching && (
+      {meetingIds.length === 0 && isMeetingsRefetching && (
         <Result
           figure={<Icon name="information-circle-outline" size={100} />}
           title="표시할 모임이 없어요"

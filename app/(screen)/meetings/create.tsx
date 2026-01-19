@@ -9,7 +9,7 @@ export default function Create() {
   const { data: profile } = useProfile();
   const region2 = profile?.region2 ?? '';
 
-  const { mutate: createMeeting, isPending } = useCreateMeeting(region2, {
+  const { mutate: createMeeting, isPending: isCreatingMeetingPending } = useCreateMeeting(region2, {
     onSuccess: (data) => {
       router.replace(`/meetings/${data.id}`);
     },
@@ -23,7 +23,7 @@ export default function Create() {
       <MeetingForm
         mode="create"
         submitLabel="모임 만들기"
-        isSubmitting={isPending}
+        isSubmitting={isCreatingMeetingPending}
         onSubmit={({ title, description, imageUri }) => {
           if (!imageUri) return;
           createMeeting({ region2, title, description, imageUri });

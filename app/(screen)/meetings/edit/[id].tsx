@@ -9,7 +9,7 @@ export default function Edit() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   const { data: meeting } = useMeetingById(id, 'detail');
-  const { mutate: updateMeeting, isPending } = useUpdateMeeting({
+  const { mutate: updateMeeting, isPending: isUpdatingMeetingPending } = useUpdateMeeting({
     onSuccess: () => {
       router.back();
     },
@@ -30,7 +30,7 @@ export default function Edit() {
         initialDescription={description}
         initialThumbnailUrl={thumbnailUrl}
         submitLabel="모임 수정하기"
-        isSubmitting={isPending}
+        isSubmitting={isUpdatingMeetingPending}
         onSubmit={({ title, description, imageUri }) => {
           updateMeeting({ meetingId: id, title, description, imageUri });
         }}

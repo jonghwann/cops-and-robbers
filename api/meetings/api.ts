@@ -564,3 +564,15 @@ export async function leaveSchedule(scheduleId: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function leaveMeeting(meetingId: string): Promise<void> {
+  const user = await requireUser();
+
+  const { error } = await supabase
+    .from('meeting_members')
+    .delete()
+    .eq('meeting_id', meetingId)
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+}
