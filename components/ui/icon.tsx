@@ -9,6 +9,7 @@ interface IconProps extends React.ComponentProps<typeof Ionicons> {
 export default function Icon({ className, ...props }: IconProps) {
   return (
     <Ionicons
+      suppressHighlighting
       {...props}
       className={cn(Platform.OS === 'android' && 'translate-y-[2px]', className)}
     />

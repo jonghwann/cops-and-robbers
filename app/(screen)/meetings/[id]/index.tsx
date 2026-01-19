@@ -124,12 +124,14 @@ export default function Index() {
                     onPress={() => router.push(`/meetings/${id}/chat`)}
                   />
                 )}
+
                 <Icon
                   name="heart"
                   size={24}
                   color={isFavorite ? 'red' : '#e5e7eb'}
                   onPress={() => toggleFavorite({ meetingId: meeting.id, isFavorite: !isFavorite })}
                 />
+
                 {isJoined && (
                   <Icon
                     name="ellipsis-horizontal"

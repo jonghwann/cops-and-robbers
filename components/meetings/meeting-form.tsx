@@ -73,7 +73,7 @@ export default function MeetingForm({
           onPress={handlePickImage}
           className="items-center justify-center gap-2 rounded-lg border border-primary p-16"
         >
-          <Icon name="image-outline" size={24} color="#48a0f8" />
+          <Icon name="image-outline" size={24} color="#333d4b" />
           <Text className="text-primary">이미지 추가</Text>
           <Text className="absolute right-3 bottom-2 text-primary">비율 20:9</Text>
         </Pressable>

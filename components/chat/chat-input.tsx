@@ -20,15 +20,15 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
   };
 
   return (
-    <View className="flex-row items-end gap-2 border-gray-200 border-t bg-white px-4 py-3">
-      <View className="max-h-32 min-h-12 flex-1 justify-center rounded-full bg-gray-100 px-4">
-        <Input
-          value={message}
-          onChangeText={setMessage}
-          placeholder="메시지를 입력하세요"
-          multiline
-        />
-      </View>
+    <View className="flex-row items-end gap-2 border-gray-200 border-t bg-white px-6 py-5">
+      <Input
+        value={message}
+        onChangeText={setMessage}
+        placeholder="메시지를 입력하세요"
+        multiline
+        className="h-12 flex-1 rounded-full"
+        inputClassName="text-xl leading-tight"
+      />
 
       <Pressable
         onPress={handleSend}
