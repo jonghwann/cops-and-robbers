@@ -17,6 +17,7 @@ import useMeetingMembers from '@/hooks/queries/use-meeting-members';
 import useMeetingSchedules from '@/hooks/queries/use-meeting-schedules';
 import useProfile from '@/hooks/queries/use-profile';
 import { useRecentMeetingsActions } from '@/hooks/queries/use-recent-meeting';
+import { cn } from '@/lib/cn';
 import { toast } from '@/utils/toast';
 
 export default function Index() {
@@ -121,14 +122,27 @@ export default function Index() {
           <View>
             <Text className="font-bold text-xl">아직 일정이 없어요!</Text>
             <Text className="mb-5 text-gray-400 text-xl">일정을 만들어보세요.</Text>
-
-            <Button
-              title="일정 만들기"
-              onPress={() => router.push(`/meetings/${id}/schedule/create`)}
-            />
           </View>
         ) : (
-          schedules?.map((schedule) => <ScheduleListItem key={schedule.id} schedule={schedule} />)
+          schedules?.map((schedule, idx) => (
+            <View key={schedule.id} className={cn('mb-6', idx === schedules.length - 1 && 'mb-10')}>
+              <ScheduleListItem
+                schedule={schedule}
+                onPress={
+                  isHost
+                    ? () => router.push(`/meetings/${id}/schedule/${schedule.id}/edit`)
+                    : undefined
+                }
+              />
+            </View>
+          ))
+        )}
+
+        {isHost && (
+          <Button
+            title="일정 만들기"
+            onPress={() => router.push(`/meetings/${id}/schedule/create`)}
+          />
         )}
 
         <Border className="my-6" />

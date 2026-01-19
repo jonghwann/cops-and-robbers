@@ -55,3 +55,12 @@ export interface CreateMeetingScheduleRequest {
   locationUrl: string;
   capacity: number;
 }
+
+export interface UpdateMeetingScheduleRequest {
+  scheduleId: string;
+  title: string;
+  startsAt: string;
+  locationName: string;
+  locationUrl: string;
+  capacity: number;
+}

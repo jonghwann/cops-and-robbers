@@ -63,6 +63,8 @@ export default function ScheduleListItem({ schedule, onPress }: ScheduleListItem
           title={isJoined ? '취소' : '참석'}
           isLoading={isPendingJoinSchedule || isPendingLeaveSchedule}
           onPress={handleJoinPress}
+          className="h-12"
+          textClassName="text-lg"
         />
       </View>
     </Pressable>

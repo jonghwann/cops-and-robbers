@@ -12,6 +12,7 @@ import type {
   MeetingsCursor,
   SetMeetingFavoriteRequest,
   UpdateMeetingRequest,
+  UpdateMeetingScheduleRequest,
 } from './type';
 
 function toMeeting(row: any): Omit<Meeting, 'isFavorite'> {
@@ -485,6 +486,60 @@ export async function createMeetingSchedule(
     isJoined: false,
     createdAt: data.created_at,
   };
+}
+
+export async function updateMeetingSchedule(params: UpdateMeetingScheduleRequest): Promise<void> {
+  await requireUser();
+
+  const required = {
+    scheduleId: params.scheduleId,
+    title: params.title?.trim(),
+    startsAt: params.startsAt,
+    locationName: params.locationName?.trim(),
+    locationUrl: params.locationUrl?.trim(),
+    capacity: params.capacity,
+  };
+
+  if (
+    !required.scheduleId ||
+    !required.title ||
+    !required.startsAt ||
+    !required.locationName ||
+    !required.locationUrl
+  )
+    throw new Error('필수값이 누락되었습니다.');
+  if (!Number.isFinite(required.capacity) || required.capacity < 2)
+    throw new Error('정원은 2명 이상이어야 합니다.');
+
+  const { data, error } = await supabase
+    .from('meeting_schedules')
+    .update({
+      title: required.title,
+      starts_at: required.startsAt,
+      location_name: required.locationName,
+      location_url: required.locationUrl,
+      capacity: required.capacity,
+    })
+    .eq('id', required.scheduleId)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error('일정을 수정할 권한이 없거나 대상이 없습니다.');
+}
+
+export async function deleteMeetingSchedule(scheduleId: string): Promise<void> {
+  await requireUser();
+
+  const { data, error } = await supabase
+    .from('meeting_schedules')
+    .delete()
+    .eq('id', scheduleId)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error('일정을 삭제할 권한이 없거나 대상이 없습니다.');
 }
 
 export async function joinSchedule(scheduleId: string): Promise<void> {
