@@ -15,4 +15,7 @@ export const queryKeys = {
     schedules: (meetingId: string) => ['meetings', 'schedules', meetingId],
     members: (meetingId: string) => ['meetings', 'members', meetingId],
   },
+  chat: {
+    messages: (meetingId: string) => ['chat', 'messages', meetingId],
+  },
 };

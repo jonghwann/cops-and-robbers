@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { useMemo } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import Screen from '@/components/layout/screen';
 import CreateMeetingFab from '@/components/meetings/create-meeting-fab';
@@ -24,7 +25,9 @@ export default function Index() {
     isRefetching: isMeetingsRefetching,
   } = useMeetings(profile?.region2 ?? '');
 
-  const meetingIds = meetings?.pages.flatMap((page) => page.ids) ?? [];
+  const meetingIds = useMemo(() => {
+    return meetings?.pages.flatMap((page) => page.ids) ?? [];
+  }, [meetings]);
 
   const onRefresh = () => {
     queryClient.removeQueries({

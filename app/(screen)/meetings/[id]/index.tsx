@@ -116,18 +116,28 @@ export default function Index() {
             title,
             headerRight: () => (
               <View className="flex-row gap-6 px-2">
+                {isJoined && (
+                  <Icon
+                    name="chatbubble-ellipses"
+                    size={24}
+                    color="black"
+                    onPress={() => router.push(`/meetings/${id}/chat`)}
+                  />
+                )}
                 <Icon
                   name="heart"
                   size={24}
                   color={isFavorite ? 'red' : '#e5e7eb'}
                   onPress={() => toggleFavorite({ meetingId: meeting.id, isFavorite: !isFavorite })}
                 />
-                <Icon
-                  name="ellipsis-horizontal"
-                  size={24}
-                  color="black"
-                  onPress={handleMorePress}
-                />
+                {isJoined && (
+                  <Icon
+                    name="ellipsis-horizontal"
+                    size={24}
+                    color="black"
+                    onPress={handleMorePress}
+                  />
+                )}
               </View>
             ),
           }}
