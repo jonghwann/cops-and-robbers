@@ -20,7 +20,6 @@ export default function NotificationProvider({ children }: NotificationProviderP
 
     (async () => {
       if (isExpoGo) {
-        console.log('Push notifications are not supported in Expo Go');
         return;
       }
 
@@ -39,9 +38,7 @@ export default function NotificationProvider({ children }: NotificationProviderP
       const token = await registerForPushNotificationsAsync(Notifications);
       if (token) registerToken(token);
 
-      notificationSub = Notifications.addNotificationReceivedListener((notification) => {
-        console.log('Notification received:', notification);
-      });
+      notificationSub = Notifications.addNotificationReceivedListener((notification) => {});
 
       responseSub = Notifications.addNotificationResponseReceivedListener((response) => {
         const data: any = response.notification.request.content.data;
@@ -60,7 +57,6 @@ export default function NotificationProvider({ children }: NotificationProviderP
 
 async function registerForPushNotificationsAsync(Notifications: any): Promise<string | null> {
   if (!Device.isDevice) {
-    console.log('Push notifications require a physical device');
     return null;
   }
 
@@ -82,13 +78,11 @@ async function registerForPushNotificationsAsync(Notifications: any): Promise<st
   }
 
   if (finalStatus !== 'granted') {
-    console.log('Push notification permission not granted');
     return null;
   }
 
   const projectId = process.env.EXPO_PUBLIC_PROJECT_ID;
   if (!projectId) {
-    console.log('EXPO_PUBLIC_PROJECT_ID is not set');
     return null;
   }
 
